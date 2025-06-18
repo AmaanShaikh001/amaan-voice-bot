@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Amaan's Voice Bot - AI-powered interview practice">
+  <meta name="author" content="Shaikh Mohammad Amaan">
+  <title>Amaan's Voice Bot Interview</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #1d4ed8;
+      --background: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-secondary: #64748b;
+      --border: #e2e8f0;
+      --error: #dc2626;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      color: var(--text);
+      padding: 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      padding: 1.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .welcome-message {
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .voice-control {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    #voiceButton {
+      padding: 0.75rem 2rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #voiceButton:hover {
+      background-color: var(--primary-dark);
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    #voiceButton.listening::before {
+      content: '🎙️';
+      font-size: 1.25rem;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1.3); opacity: 0.7; }
+    }
+
+    #voiceButton:disabled {
+      background-color: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    #status {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      text-align: center;
+      min-height: 1.5rem;
+      transition: color 0.3s ease;
+    }
+
+    #status.error {
+      color: var(--error);
+      font-weight: 500;
+    }
+
+    #status.loading::after {
+      content: ' •••';
+      animation: dots 1.2s steps(5, end) infinite;
+    }
+
+    @keyframes dots {
+      0%, 20% { content: ' •  '; }
+      40% { content: ' •• '; }
+      60% { content: ' •••'; }
+      80%, 100% { content: ' •   '; }
+    }
+
+    #response {
+      font-size: 1.125rem;
+      color: var(--text);
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: var(--shadow);
+      line-height: 1.6;
+      transition: opacity 0.3s ease;
+    }
+
+    #history {
+      width: 100%;
+    }
+
+    #history h2 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    #historyList {
+      list-style: none;
+      background: var(--card-bg);
+      border-radius: 0.75rem;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    #historyList li {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    #historyList li:last-child {
+      border-bottom: none;
+    }
+
+    #historyList li:hover {
+      background-color: #f1f5f9;
+    }
+
+    .history-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .history-question {
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .history-question::before {
+      content: '❓';
+      font-size: 1rem;
+    }
+
+    .history-answer {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      display: none;
+      padding-top: 0.5rem;
+    }
+
+    .history-item.expanded .history-answer {
+      display: block;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+      }
+
+      .welcome-message {
+        font-size: 1rem;
+      }
+
+      #voiceButton {
+        font-size: 1rem;
+        padding: 0.5rem 1.5rem;
+      }
+
+      #response {
+        font-size: 1rem;
+        padding: 1rem;
+      }
+
+      #history h2 {
+        font-size: 1.25rem;
+      }
+
+      #historyList li {
+        padding: 0.75rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Amaan's Voice Bot</h1>
+      <div class="welcome-message">
+        Hello! I'm Amaan's AI voice bot, ready to answer your questions. Click the button below to start talking!
+      </div>
+      <div class="voice-control">
+        <button id="voiceButton" aria-label="Toggle voice input">Start Talking</button>
+        <div id="status" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+    <div id="response" class="card" role="log" aria-live="polite"></div>
+    <div id="history" class="card">
+      <h2>Conversation History</h2>
+      <ul id="historyList" role="list"></ul>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    const VoiceBot = {
+      responses: {
+        "what should we know about your life story": "I'm Shaikh Mohammad Amaan from Pune, India, with a BCA from IGNOU, graduating with 70.85%. My passion for AI and problem-solving led me to freelance as an AI trainer at Alignerr and Outlier, where I fine-tuned LLMs like BARD/Gemini and optimized datasets. I’m driven by curiosity, enjoy exploring blockchain and financial markets, and aim to build scalable AI solutions.",
+        "what's your number one superpower": "My superpower is adaptability. I’ve quickly mastered tools like Dask and AWS S3 for projects like my stock market data pipeline, which cut compute time by 60%, and I thrive in dynamic environments like AI model training.",
+        "what are the top three areas you'd like to grow in": "I want to deepen my expertise in advanced LLM architectures, strengthen my backend development skills with tools like FastAPI, and improve my ability to present technical concepts to non-technical audiences.",
+        "what misconception do your coworkers have about you": "Some might think I’m overly technical because I dive deep into projects like sentiment analysis, but I’m collaborative and enjoy sharing insights to improve team workflows, as I did at Outlier.",
+        "how do you push your boundaries and limits": "My experience at Alignerr and Outlier, where I successfully fine-tuned large language models and optimized datasets, has built my confidence in my abilities. The projects I've undertaken, such as building a highly efficient stock market data pipeline, demonstrate my capacity to tackle complex challenges and deliver tangible results. While I’m always eager to learn and grow in areas like advanced LLM architectures and backend development, I’m confident in my existing skillset and my ability to adapt and learn quickly in new situations"
+      },
+      isListening: false,
+      isSpeaking: false,
+      isProcessing: false,
+      userWantsListening: false,
+      questionQueue: [],
+      responseHistory: [],
+      debounceTimeout: null,
+
+      init() {
+        this.setupElements();
+        this.setupSpeechRecognition();
+        this.setupEventListeners();
+        this.setStatus('Click the button to start speaking');
+      },
+
+      setupElements() {
+        this.voiceButton = document.getElementById('voiceButton');
+        this.status = document.getElementById('status');
+        this.responseDiv = document.getElementById('response');
+        this.historyList = document.getElementById('historyList');
+      },
+
+      setupSpeechRecognition() {
+        const recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!recognition) {
+          this.status.textContent = 'Speech Recognition API not supported in this browser.';
+          this.voiceButton.disabled = true;
+          return;
+        }
+        this.speechRecognition = new recognition();
+        this.speechRecognition.lang = 'en-US';
+        this.speechRecognition.interimResults = false;
+        this.speechRecognition.maxAlternatives = 1;
+
+        this.speechRecognition.onstart = () => {
+          this.isListening = true;
+          this.setStatus('Listening...');
+        };
+
+        this.speechRecognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript.toLowerCase().trim();
+          this.setStatus(`You said: ${transcript}`);
+          this.questionQueue.push(transcript);
+          this.processQueue();
+        };
+
+        this.speechRecognition.onerror = (event) => {
+          this.setStatus(`Error: ${event.error}`);
+          this.stopListening();
+        };
+
+        this.speechRecognition.onend = () => {
+          this.isListening = false;
+          if (this.userWantsListening && !this.isSpeaking && !this.isProcessing) {
+            this.startListening();
+          } else if (!this.isProcessing && !this.isSpeaking) {
+            this.setStatus('Click to start speaking');
+          }
+        };
+      },
+
+      setupEventListeners() {
+        this.voiceButton.addEventListener('click', () => this.toggleListening());
+        this.voiceButton.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            this.toggleListening();
+          }
+        });
+      },
+
+      toggleListening() {
+        this.userWantsListening = !this.userWantsListening;
+        if (this.userWantsListening) {
+          this.startListening();
+        } else {
+          this.stopListening();
+        }
+      },
+
+      startListening() {
+        if (this.isListening) return;
+        this.speechRecognition.start();
+        this.voiceButton.textContent = 'Stop Talking';
+      },
+
+      stopListening() {
+        if (!this.isListening) return;
+        this.speechRecognition.stop();
+        this.voiceButton.textContent = 'Start Talking';
+      },
+
+      setStatus(message) {
+        this.status.classList.remove('loading');
+        this.status.textContent = message;
+      },
+
+      showLoading() {
+        this.status.classList.add('loading');
+        this.status.textContent = 'Processing...';
+      },
+
+      async processQueue() {
+        if (this.isProcessing || this.isSpeaking || this.questionQueue.length === 0) return;
+
+        clearTimeout(this.debounceTimeout);
+        this.debounceTimeout = setTimeout(async () => {
+          this.isProcessing = true;
+          this.showLoading();
+
+          const question = this.questionQueue.shift();
+
+          if (!question || question.length < 3) {
+            this.setStatus('Question too short. Please try again.');
+            this.isProcessing = false;
+            return;
+          }
+
+          this.stopListening();
+
+          for (const key in this.responses) {
+            if (question.includes(key)) {
+              const cleanedResponse = this.cleanResponse(this.responses[key]);
+              this.setStatus('');
+              this.speak(cleanedResponse);
+              this.responseDiv.textContent = cleanedResponse;
+              this.addToHistory(question, cleanedResponse);
+              this.isProcessing = false;
+              return;
+            }
+          }
+
+          try {
+            const response = await axios.post(
+              'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyAwm3T6siQ3_boc-UwyYdgKlOlA7IiiU8U',
+              {
+                contents: [{
+                  parts: [{
+                    text: `You are a voice bot representing Shaikh Mohammad Amaan, an AI practitioner. Respond to interview questions naturally and professionally, as if you are Amaan answering directly, using the following context for consistency: ${JSON.stringify(this.responses)}. Avoid including tone instructions or bracketed text in the response. Question: ${question}`
+                  }]
+                }]
+              },
+              {
+                headers: { 'Content-Type': 'application/json' }
+              }
+            );
+
+            const answer = this.cleanResponse(response.data.candidates[0].content.parts[0].text.trim());
+            this.setStatus('');
+            this.speak(answer);
+            this.responseDiv.textContent = answer;
+            this.addToHistory(question, answer);
+
+          } catch (error) {
+            console.error('Error fetching response:', error);
+            this.setStatus('Error getting response. Please try again.');
+          } finally {
+            this.isProcessing = false;
+            if (!this.isListening && !this.isSpeaking && this.userWantsListening) {
+              this.startListening();
+            } else if (!this.isListening && !this.isSpeaking) {
+              this.setStatus('Click to start speaking');
+            }
+            if (this.questionQueue.length > 0) this.processQueue();
+          }
+        }, 500);
+      },
+
+      speak(text) {
+        this.isSpeaking = true;
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.onstart = () => {
+          this.setStatus('Speaking...');
+        };
+        utterance.onend = () => {
+          this.isSpeaking = false;
+          if (this.userWantsListening && !this.isListening && !this.isProcessing) {
+            this.startListening();
+          } else if (!this.isListening && !this.isProcessing) {
+            this.setStatus('Click to start speaking');
+          }
+          if (this.questionQueue.length > 0) this.processQueue();
+        };
+        window.speechSynthesis.speak(utterance);
+      },
+
+      cleanResponse(text) {
+        return text.replace(/\(.*?\)/g, '').trim();
+      },
+
+      addToHistory(question, response) {
+        this.responseHistory.push({ question, response });
+        const li = document.createElement('li');
+        li.classList.add('history-item');
+        li.innerHTML = `
+          <div class="history-question">${question}</div>
+          <div class="history-answer">${response}</div>
+        `;
+        li.addEventListener('click', () => {
+          li.classList.toggle('expanded');
+          if (li.classList.contains('expanded')) {
+            this.speak(response);
+          }
+        });
+        this.historyList.prepend(li);
+      }
+    };
+
+    VoiceBot.init();
+  </script>
+</body>
+</html>
