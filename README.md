@@ -48,7 +48,8 @@ Obtain the public URL (e.g., https://your-app.vercel.app).
 
 # Configure the Gemini API Key:
 
-Replace the placeholder API key in the index.html file (AIzaSyAwm3T6siQ3_boc-UwyYdgKlOlA7IiiU8U) with a valid Gemini API key.
+Replace the placeholder API key in the index.html file with a valid Gemini API key.
+
 For production, secure the API key by proxying requests through a backend server to avoid exposing it in client-side code.
 
 
@@ -80,9 +81,13 @@ Click the "Stop Talking" button to pause voice input.
 # Example Questions
 
 What should we know about your life story in a few sentences?
+
 What’s your #1 superpower?
+
 What are the top 3 areas you’d like to grow in?
+
 What misconception do your coworkers have about you?
+
 How do you push your boundaries and limits?
 
 # Notes
